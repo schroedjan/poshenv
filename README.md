@@ -1,0 +1,1 @@
+# PoshEnv - A Powershell Native Direnv Implementation
