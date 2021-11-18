@@ -40,27 +40,71 @@ function Command-Config {
     }
 }
 
+function Complete-PoshEnv {
+    param($commandName, $wordToComplete, $cursorPosition)
+
+    $cmd = -split $wordToComplete
+    switch ($($cmd[1])) {
+        "config" {
+            switch ($($cmd[2])) {
+                "get" {}
+                "set" {}
+                "list" {}
+                default {
+                    @("list", "get", "set") | Where-Object {
+                        $_ -like "${commandName}*"
+                    } | ForEach-Object {
+                        "$_"
+                    }
+                }
+            }
+        }
+        default {
+            # Handle main command completion
+            @("allow", "deny", "config", "refresh", "help") | Where-Object {
+                $_ -like "${commandName}*"
+            } | ForEach-Object {
+                "$_"
+            }
+        }
+    }
+}
+
 function Show-Help {
-    Write-Host "Usage - PoshEnv"
-    Write-Host "  poshenv <command>"
-    Write-Host ""
-    Write-Host "Commands:"
-    Write-Host " allow     - Allow env files in current folder. Needs to be run again, when files have changed."
-    Write-Host " deny      - Deny env foles in current folder."
-    Write-Host " refresh   - Update config from config file."
-    Write-Host " help      - Show this help page."
+    Write-Host @"
+Usage - PoshEnv
+    poshenv <command>
+
+Commands:
+    allow     - Allow env files in current folder. Needs to be run again, when files have changed.
+    deny      - Deny env foles in current folder.
+    config    - View and edit poshenv configuration.
+    refresh   - Update config from config file.
+    help      - Show this help page.
+
+Argument Completion:
+
+    For automatic argument completion, add the following to your profile.
+        Register-ArgumentCompleter -Native -CommandName poshenv -ScriptBlock {
+            param($commandName, $wordToComplete, $cursorPosition)
+            Complete-PoshEnv @PsBoundParameters
+        }
+"@
+
 }
 
 function Config-Help {
-    Write-Host "Usage - PoshEnv"
-    Write-Host "  poshenv config <command>"
-    Write-Host "  poshenv config list"
-    Write-Host "  poshenv config get <key>"
-    Write-Host "  poshenv config set <key> <value>"
-    Write-Host ""
-    Write-Host "Commands:"
-    Write-Host " list     - List all current settings."
-    Write-Host " get      - Get setting with given name."
-    Write-Host " set      - Set setting with given name to given value."
-    Write-Host " help     - Show this help page."
+    Write-Host @"
+Usage - PoshEnv Config
+    poshenv config <command>
+    poshenv config list
+    poshenv config get <key>
+    poshenv config set <key> <value>
+
+Commands:
+    list     - List all current settings.
+    get      - Get setting with given name.
+    set      - Set setting with given name to given value.
+    help     - Show this help page.
+"@
 }
