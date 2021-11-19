@@ -46,5 +46,5 @@ Export-ModuleMember `
         Unregister-PoshEnv, `
         Read-PoshEnvConfig, `
         poshenv, `
-        Complete-PoshEnv, `
+        Register-PoshEnvCompletion, `
         Prompt

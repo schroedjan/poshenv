@@ -25,7 +25,7 @@ function Initialize-PoshEnvConfig {
         Set-PoshEnvConfig "posh_env_files" @(".envrc", ".env")
         Set-PoshEnvConfig "allowed_path_file" "allowed_paths.json"
         Set-PoshEnvConfig "log_level" "info"
-        Set-PoshEnvConfig "show_candidates" "true"
+        Set-PoshEnvConfig "show_candidates" $True
         Save-PoshEnvConfig
     } else {
         Read-PoshEnvConfig

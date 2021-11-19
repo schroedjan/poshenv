@@ -70,6 +70,13 @@ function Complete-PoshEnv {
     }
 }
 
+function Register-PoshEnvCompletion {
+    Register-ArgumentCompleter -Native -CommandName poshenv -ScriptBlock {
+        param($commandName, $wordToComplete, $cursorPosition)
+        Complete-PoshEnv @PsBoundParameters
+    }
+}
+
 function Show-Help {
     Write-Host @"
 Usage - PoshEnv
@@ -85,10 +92,7 @@ Commands:
 Argument Completion:
 
     For automatic argument completion, add the following to your profile.
-        Register-ArgumentCompleter -Native -CommandName poshenv -ScriptBlock {
-            param($commandName, $wordToComplete, $cursorPosition)
-            Complete-PoshEnv @PsBoundParameters
-        }
+        Register-PoshEnvCompletion
 "@
 
 }
