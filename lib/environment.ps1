@@ -21,7 +21,7 @@ function Set-PoshEnv {
     # Show candidates if config set
     if (Get-PoshEnvConfig "show_candidates") {
         $script:candidates | % {
-            Log-Info "Found envfile '$(Split-Path -Path $_ -Leaf)' that is not allowed. Run Register-PoshEnv to allow file."
+            Log-Info "Found envfile '$(Split-Path -Path $_ -Leaf)' that is not allowed. Run poshenv allow to allow file."
         }
     }
 
@@ -58,6 +58,7 @@ function Restore-Env {
     Log-Trace "BEGIN - Restore-Env"
     if ($script:EnvBackup) {
         Log-Debug "Restoring from EnvBackup "
+        Log-Info "Unloading"
         # Only iterate once through current environment for peformance.
         # This restore will NOT recover env vars you deleted in your local env file. 
         Get-ChildItem env: | % {
@@ -83,6 +84,7 @@ function Restore-Env {
 function Apply-PoshEnv {
     Log-Trace "BEGIN - Apply-PoshEnv"
     $script:allowed | % {
+        Log-Info "Loading $((Get-FileInfo $_).Name)."
         # Move Content to temporary file, ensures correct file extension
         $tempfile = Join-Path $([System.IO.Path]::GetTempPath()) "$((Get-FileHash $_).Hash).ps1"
         Log-Trace "Using temporary file: $tempfile"

@@ -65,6 +65,7 @@ function Allow-File {
         $FileEntry
     )
     $script:AllowedPaths[$FileEntry.FullName] = $FileEntry.LastWriteTime
+    Log-Info "Allowing file $($FileEntry.Name)."
     Force-PoshEnvReload
 }
 
@@ -73,6 +74,7 @@ function Deny-File {
         $FileEntry
     )
     $script:AllowedPaths.Remove($FileEntry.FullName)
+    Force-PoshEnvReload
 }
 
 function Check-File {
@@ -81,7 +83,7 @@ function Check-File {
         [Alias("f")]
         $File
     )
-    $FileInfo = Get-ChildItem -Path $File | Select FullName,LastWriteTime
+    $FileInfo = Get-ChildItem -Path $File | Select Name,FullName,LastWriteTime
     Log-Trace "BEGIN - Check-File"
     if ($script:AllowedPaths.Keys -contains $File) {
         Log-Debug "$(Split-Path -Path $File -Leaf) contained in AllowedPaths"
@@ -132,7 +134,7 @@ function Get-FileInfo {
     param(
         $path
     )
-    return get-childitem -Path $path | select Fullname,LastWriteTime
+    return get-childitem -Path $path | select Name,Fullname,LastWriteTime
 
 }
 
