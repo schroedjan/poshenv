@@ -19,6 +19,7 @@ function poshenv {
         "deny" { Unregister-PoshEnv }
         "config" { Command-Config @arguments }
         "refresh" { Read-PoshEnvConfig }
+        "list" { List-Files $pwd }
         default { Show-Help }
     }
 }

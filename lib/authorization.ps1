@@ -10,12 +10,15 @@ function Register-PoshEnv {
     )
     Log-Trace "BEGIN - Register-PoshEnv"
     $files = (List-Files $Path)
-    if ($($files.Count) -gt 1) {
+    if ($files.Count -eq 0) {
+        Log-Debug "No candidates in current folder."
+    } elseif ($($files.Count) -gt 1) {
         Allow-File (Get-FileInfo $files[$(Select-File $files "Wnich file to allow?")])
+        Save-AllowedPaths
     } else {
         Allow-File (Get-FileInfo $files)
+        Save-AllowedPaths
     }
-    Save-AllowedPaths
     Log-Trace "END - Register-PoshEnv"
 }
 
@@ -40,7 +43,7 @@ function Unregister-PoshEnv {
 function Initialize-AllowedPaths {
     $FilePath = Join-Path $(Get-PoshEnvConfig "dir") $(Get-PoshEnvConfig "allowed_path_file")
     if (-not (Test-Path $FilePath)) {
-        New-Item -ItemType "file" -Path $FilePath 
+        New-Item -ItemType "file" -Path $FilePath
     }
     Load-AllowedPaths
 }
@@ -125,7 +128,7 @@ function List-Files {
             Log-Debug "File '$_' not found. Continuing."
         }
     }
-    Log-Debug "Found following Files: $EnvFiles" 
+    Log-Debug "Found following Files: $EnvFiles"
     return $EnvFiles
 }
 

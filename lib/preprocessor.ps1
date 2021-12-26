@@ -83,5 +83,5 @@ function PreProcess-Line() {
     }
 
     Log-Trace "END - PreProcess-Line"
-    Write-Output $result
+    return $result
 }
