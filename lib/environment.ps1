@@ -1,6 +1,7 @@
 Import-Module -Name ($PSScriptRoot + "\authorization.ps1")
 Import-Module -Name ($PSScriptRoot + "\log.ps1")
 Import-Module -Name ($PSScriptRoot + "\config.ps1")
+Import-Module -Name ($PSScriptRoot + "\preprocessor.ps1")
 
 function Set-PoshEnv {
     Log-Trace "BEGIN - Set-PoshEnv"
@@ -37,7 +38,7 @@ function Set-PoshEnv {
             # Backup Current Env
             Backup-Env
             # Apply env files
-            Apply-PoshEnv
+            Apply-Env
         }
 
         $script:lastDir = $pwd
@@ -60,7 +61,7 @@ function Restore-Env {
         Log-Debug "Restoring from EnvBackup "
         Log-Info "Unloading"
         # Only iterate once through current environment for peformance.
-        # This restore will NOT recover env vars you deleted in your local env file. 
+        # This restore will NOT recover env vars you deleted in your local env file.
         Get-ChildItem env: | % {
             $found = $script:EnvBackup | where Key -eq $_.Key
             if ($found) {
@@ -81,27 +82,17 @@ function Restore-Env {
     Log-Trace "END - Restore-Env"
 }
 
-function Apply-PoshEnv {
-    Log-Trace "BEGIN - Apply-PoshEnv"
+function Apply-Env {
+    Log-Trace "BEGIN - Apply-Env"
     $script:allowed | % {
         Log-Info "Loading $((Get-FileInfo $_).Name)."
-        # Move Content to temporary file, ensures correct file extension
-        $tempfile = Join-Path $([System.IO.Path]::GetTempPath()) "$((Get-FileHash $_).Hash).ps1"
-        Log-Trace "Using temporary file: $tempfile"
-        Copy-Item $_ $tempfile
-        try {
-            # Source temporary file
-            . $tempfile
-        } finally {
-            # delete temporary file
-            Remove-Item $tempfile
-        }
+        Apply-File $_
     }
-    Log-Trace "END - Apply-PoshEnv"
+    Log-Trace "END - Apply-Env"
 }
 
 function Force-PoshEnvReload {
-    Log-Trace "BEGIN - Trigger-ByAllow"
+    Log-Trace "BEGIN - Force-PoshEnvReload"
     $script:ForceReload = $True
-    Log-Trace "END - Trigger-ByAllow"
+    Log-Trace "END - Force-PoshEnvReload"
 }

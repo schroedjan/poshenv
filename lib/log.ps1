@@ -8,12 +8,24 @@ $script:LOG_LEVEL=@{
     trace = 4
 }
 
+$script:LOG_PREFIX = "PoshEnv"
+
+function Format-Message() {
+    param(
+        [string]$Message,
+        [string]$Prefix="PoshEnv>>",
+        [string]$Color="White"
+    )
+    Write-Host "$Prefix $Message" -ForegroundColor $Color
+}
+
 function Log-Trace {
     param(
         [string]$Message
     )
     if($script:LOG_LEVEL[$(Get-PoshEnvConfig "log_level")] -ge $script:LOG_LEVEL["trace"]) {
-        Write-Host "TRACE:" $Message -ForegroundColor DarkGray
+        Format-Message $Message -Color DarkGray
+        # Write-Host "TRACE:" $Message -ForegroundColor DarkGray
     }
 }
 
@@ -22,7 +34,8 @@ function Log-Debug {
         [string]$Message
     )
     if($script:LOG_LEVEL[$(Get-PoshEnvConfig "log_level")] -ge $script:LOG_LEVEL["debug"]) {
-        Write-Host "DEBUG:" $Message -ForegroundColor Cyan
+        Format-Message $Message -Color Cyan
+        # Write-Host "DEBUG:" $Message -ForegroundColor Cyan
     }
 }
 
@@ -31,7 +44,8 @@ function Log-Info {
         [string]$Message
     )
     if($script:LOG_LEVEL[$(Get-PoshEnvConfig "log_level")] -ge $script:LOG_LEVEL["info"]) {
-        Write-Host "INFO:" $Message -ForegroundColor Green
+        Format-Message $Message -Color Green
+        # Write-Host "INFO:" $Message -ForegroundColor Green
     }
 }
 
@@ -40,7 +54,8 @@ function Log-Warn {
         [string]$Message
     )
     if($script:LOG_LEVEL[$(Get-PoshEnvConfig "log_level")] -ge $script:LOG_LEVEL["warn"]) {
-        Write-Host "WARN:" $Message -ForegroundColor Yellow
+        Format-Message $Message -Color Yellow
+        # Write-Host "WARN:" $Message -ForegroundColor Yellow
     }
 }
 
@@ -49,6 +64,7 @@ function Log-Error {
         [string]$Message
     )
     if($script:LOG_LEVEL[$(Get-PoshEnvConfig "log_level")] -ge $script:LOG_LEVEL["error"]) {
-        Write-Host "ERROR:" $Message -ForegroundColor Red
+        Format-Message $Message -Color Red
+        # Write-Host "ERROR:" $Message -ForegroundColor Red
     }
 }

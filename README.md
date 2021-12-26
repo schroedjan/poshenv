@@ -27,7 +27,8 @@ Register-PoshEnvCompletion
 
 Use it just like you would use direnv in your common linux environment.
 
-Demo:
+### Demo
+
 ```powershell
 # Create a new folder for demo purposes.
 $ mkdir ~/my-project
@@ -60,6 +61,20 @@ INFO: Unloading
 $ Write-Host "FOO: $env:FOO"
 FOO:
 ```
+
+### PoshEnv File Content
+
+Unlike [direnv][direnv], PoshEnv files can contain complete PowerShell scripts.
+However, PoshEnv can only restore changes to the environment automatically.
+
+### Convenience Methods
+PoshEnv also comes with handy convenience methods to change your Path:
+
+Method | Example | Description
+------ | ------- | -----------
+`PATH_ADD` | `PATH_ADD "C:\myPath\myTool.exe"` | Will add the given path to the end of $env:PATH variable.
+`PATH_APPEND` | `PATH_APPEND "C:\myPath\myTool.exe"` | Will add the given path to the end of $env:PATH variable.
+`PATH_PREPEND` | `PATH_PREPEND "C:\myPath\myTool.exe"` | Will add the given path as first entry in $env:PATH variable.
 
 ## Configuration
 

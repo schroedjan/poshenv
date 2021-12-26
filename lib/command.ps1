@@ -1,5 +1,6 @@
 Import-Module -Name ($PSScriptRoot + "\config.ps1")
 Import-Module -Name ($PSScriptRoot + "\authorization.ps1")
+Import-Module -Name ($PSScriptRoot + "\preprocessor.ps1")
 # Import-Module -Name ($PSScriptRoot + "\environment.ps1")
 # Import-Module -Name ($PSScriptRoot + "\log.ps1")
 
@@ -16,7 +17,7 @@ function poshenv {
     switch ($Command) {
         "allow" { Register-PoshEnv }
         "deny" { Unregister-PoshEnv }
-        "config" { Command-Config @arguments}
+        "config" { Command-Config @arguments }
         "refresh" { Read-PoshEnvConfig }
         default { Show-Help }
     }

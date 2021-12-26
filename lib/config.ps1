@@ -6,10 +6,10 @@ function Initialize-PoshEnvConfig {
     Set-Variable -Name "ConfigDir" -Value ([string]"$env:POSH_ENV_CONFIG_DIR") -Scope script
     if (-not $script:ConfigDir) {
         if ($env:HOME) {
-            $script:ConfigDirBase = Join-Path $env:HOME ".config" 
+            $script:ConfigDirBase = Join-Path $env:HOME ".config"
             $script:ConfigDir = Join-Path $script:ConfigDirBase $script:ConfigDirPoshEnv
         } else {
-            $script:ConfigDirBase = Join-Path $env:USERPROFILE ".config" 
+            $script:ConfigDirBase = Join-Path $env:USERPROFILE ".config"
             $script:ConfigDir = Join-Path $script:ConfigDirBase $script:ConfigDirPoshEnv
         }
     }
@@ -26,6 +26,7 @@ function Initialize-PoshEnvConfig {
         Set-PoshEnvConfig "allowed_path_file" "allowed_paths.json"
         Set-PoshEnvConfig "log_level" "info"
         Set-PoshEnvConfig "show_candidates" $True
+        Set-PoshEnvConfig "enable_preprocessor" $True
         Save-PoshEnvConfig
     } else {
         Read-PoshEnvConfig
