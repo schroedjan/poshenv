@@ -20,16 +20,31 @@ function Initialize-PoshEnvConfig {
     if (-not (Test-Path $script:ConfigDir)) { New-Item -ItemType "directory" -Path $script:ConfigDir }
     if (-not (Test-Path $script:ConfigFile)) {
         New-Item -ItemType "file" -Path $script:ConfigFile
-        # init default values
-        New-Variable -Name "PoshEnvConfig" -Value @{} -Scope script
-        Set-PoshEnvConfig "posh_env_files" @(".envrc", ".env")
-        Set-PoshEnvConfig "allowed_path_file" "allowed_paths.json"
-        Set-PoshEnvConfig "log_level" "info"
-        Set-PoshEnvConfig "show_candidates" $True
-        Set-PoshEnvConfig "enable_preprocessor" $True
+        New-Variable -Name "PoshEnvConfig" -Value $(New-Object -TypeName PSObject) -Scope script
         Save-PoshEnvConfig
     } else {
         Read-PoshEnvConfig
+    }
+    # Init default values
+    Init-ConfigVar "log_level" "debug"
+    Init-ConfigVar "posh_env_files" @(".envrc", ".env")
+    Init-ConfigVar "allowed_path_file" "allowed_paths.json"
+    Init-ConfigVar "show_candidates" $True
+    Init-ConfigVar "enable_preprocessor" $True
+    Init-ConfigVar "search_mode" "current_folder"
+}
+
+function Init-ConfigVar {
+    [CmdletBinding()]
+    Param (
+        [Alias("k")]
+        $Key,
+        [Alias("v")]
+        $DefaultValue
+    )
+    if ($(Get-PoshEnvConfig $Key) -eq $null) {
+        Log-Debug "Initialize Option '$Key' with default value '$DefaultValue'."
+        Set-PoshEnvConfig $Key $DefaultValue
     }
 }
 
@@ -69,6 +84,7 @@ function Set-PoshEnvConfig {
         [string]$Key,
         $Val
     )
-    $script:PoshEnvConfig["$Key"]=$Val
+    # $script:PoshEnvConfig.$Key=$Val
+    $script:PoshEnvConfig | Add-Member -NotePropertyName $Key -NotePropertyValue $Val
     Save-PoshEnvConfig
 }
