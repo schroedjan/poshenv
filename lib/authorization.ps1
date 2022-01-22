@@ -120,13 +120,25 @@ function List-Files {
     Log-Trace "BEGIN - List-Files"
     $EnvFiles = @()
     $(Get-PoshEnvConfig "posh_env_files") | % {
-        try {
-            if (Test-Path (Join-Path $Dir $_)) {
-                $EnvFiles += (Join-Path $Dir $_)
+        switch(Get-PoshEnvConfig "search_mode") {
+            "current_folder" {
+                search_current_folder
+                break
             }
-        } catch {
-            Log-Debug "File '$_' not found. Continuing."
+            "parent_folder" {
+                break
+            }
+            "parent_folder_merge" {
+                break
+            }
+            default {
+                Log-Warn "Search Mode not recognized! Falling back to only searching current folder."
+                search_current_folder
+                break
+            }
         }
+
+
     }
     Log-Debug "Found following Files: $EnvFiles"
     return $EnvFiles
@@ -155,4 +167,14 @@ function Select-File {
         $choices += New-Object System.Management.Automation.Host.ChoiceDescription("&$i - $(Split-Path -Path $options[$i] -Leaf)")
     }
     return $host.ui.PromptForChoice($Message, $Caption, $choices, $DefaultChoice)
+}
+
+function search_current_folder() {
+    try {
+        if (Test-Path (Join-Path $Dir $_)) {
+            $EnvFiles += (Join-Path $Dir $_)
+        }
+    } catch {
+        Log-Debug "File '$_' not found. Continuing."
+    }
 }
