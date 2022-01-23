@@ -85,6 +85,6 @@ function Set-PoshEnvConfig {
         $Val
     )
     # $script:PoshEnvConfig.$Key=$Val
-    $script:PoshEnvConfig | Add-Member -NotePropertyName $Key -NotePropertyValue $Val
+    $script:PoshEnvConfig | Add-Member -NotePropertyName $Key -NotePropertyValue $Val -Force
     Save-PoshEnvConfig
 }
