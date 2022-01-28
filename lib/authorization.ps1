@@ -31,7 +31,7 @@ function Unregister-PoshEnv {
     Log-Trace "BEGIN - Unregister-PoshEnv"
     $files = (List-Files $Path)
     if ($($files.Count) -gt 1) {
-        Deny-File (Get-FileInfo $files[$(Select-File $files "Wnich file to deny?")])
+        Deny-File (Get-FileInfo $files[$(Select-File $files "Which file to deny?")])
     } else {
         Deny-File (Get-FileInfo $files)
     }
@@ -76,7 +76,7 @@ function Deny-File {
     param(
         $FileEntry
     )
-    $script:AllowedPaths.Remove($($FileEntry.FullName | Resolve-Path -Relative))
+    $script:AllowedPaths.Remove($($FileEntry.FullName))
     Force-PoshEnvReload
 }
 
