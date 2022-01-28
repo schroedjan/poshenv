@@ -51,7 +51,7 @@ function PreProcess-Line() {
     switch ($command) {
         "PATH_ADD" {
             if (Get-PoshEnvConfig "enable_preprocessor") {
-                Log-Trace "Found PATH_ADD, transforming and adding to PATH"
+                Log-Trace "Found 'PATH_ADD', transforming and adding to PATH"
                 $result = "`$env:PATH=`"`$env:PATH;$($arguments.replace('"', ''))`""
             } else {
                 $result = $null
@@ -60,7 +60,7 @@ function PreProcess-Line() {
         }
         "PATH_APPEND" {
             if (Get-PoshEnvConfig "enable_preprocessor") {
-                Log-Trace "Found PATH_ADD, transforming and adding to PATH"
+                Log-Trace "Found 'PATH_APPEND', transforming and adding to PATH"
                 $result = "`$env:PATH=`"`$env:PATH;$($arguments.replace('"', ''))`""
             } else {
                 $result = $null
@@ -69,8 +69,23 @@ function PreProcess-Line() {
         }
         "PATH_PREPEND" {
             if (Get-PoshEnvConfig "enable_preprocessor") {
-                Log-Trace "Found PATH_ADD, transforming and adding to PATH on first position"
+                Log-Trace "Found 'PATH_PREPEND', transforming and adding to PATH on first position"
                 $result = "`$env:PATH=`"$($arguments.replace('"', ''));`$env:PATH`""
+            } else {
+                $result = $null
+            }
+            continue
+        }
+        "export" {
+            if (Get-PoshEnvConfig "enable_preprocessor") {
+                Log-Trace "Found 'export', transforming bash style to powershell"
+                if ($arguments -match ".+=.+") {
+                    Log-Trace "Valid variable declaration, trying to transform"
+                    $key,$value = $arguments.replace('"', '') -split '='
+                    $result = "`$env:${key}=`"${value}`""
+                } else {
+                    $result = $null
+                }
             } else {
                 $result = $null
             }

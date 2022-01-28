@@ -76,6 +76,13 @@ Method | Example | Description
 `PATH_APPEND` | `PATH_APPEND "C:\myPath\myTool.exe"` | Will add the given path to the end of $env:PATH variable.
 `PATH_PREPEND` | `PATH_PREPEND "C:\myPath\myTool.exe"` | Will add the given path as first entry in $env:PATH variable.
 
+Your coworkers are using those fancy Macs or nerdy linux computers? Surely they can't handle their equipment and you end up with bash style variable definitions in those env files they check into repositories.
+PoshEnv got you covered by auto converting them to PowerShell compatible definitions
+
+Before | After
+------ | -----
+`export FOO=bar` | `$env:FOO="bar"`
+
 ## Configuration
 
 PoshEnv can be configured via cli commands or by editing the config file.
