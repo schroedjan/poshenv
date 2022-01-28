@@ -27,11 +27,11 @@ function Initialize-PoshEnvConfig {
     }
     # Init default values
     Init-ConfigVar "log_level" "debug"
-    Init-ConfigVar "posh_env_files" @(".envrc", ".env")
+    Init-ConfigVar "posh_env_files" @(".env", ".envrc", ".poshenv")
     Init-ConfigVar "allowed_path_file" "allowed_paths.json"
     Init-ConfigVar "show_candidates" $True
     Init-ConfigVar "enable_preprocessor" $True
-    Init-ConfigVar "search_mode" "current_folder"
+    Init-ConfigVar "search_mode" "merge_recursive"
 }
 
 function Init-ConfigVar {

@@ -2,6 +2,7 @@ Import-Module -Name ($PSScriptRoot + "\authorization.ps1")
 Import-Module -Name ($PSScriptRoot + "\log.ps1")
 Import-Module -Name ($PSScriptRoot + "\config.ps1")
 Import-Module -Name ($PSScriptRoot + "\preprocessor.ps1")
+Import-Module -Name ($PSScriptRoot + "\util.ps1")
 
 function Set-PoshEnv {
     Log-Trace "BEGIN - Set-PoshEnv"
@@ -22,14 +23,12 @@ function Set-PoshEnv {
     # Show candidates if config set
     if (Get-PoshEnvConfig "show_candidates") {
         $script:candidates | % {
-            Log-Info "Found envfile '$(Split-Path -Path $_ -Leaf)' that is not allowed. Run poshenv allow to allow file."
+            Log-Info "Found envfile '$($_ | Resolve-Path -Relative)' that is not allowed. Run 'poshenv allow' to allow file."
         }
     }
 
-    # Only evaluate Envs if dir changed
-    if (($script:lastDir -ne $pwd) -or ($script:ForceReload)) {
-        Log-Debug "WorkingDir Changed, evaluating environmental changes."
-
+    # Only evaluate Envs if needed
+    if (Needs-Reload) {
         # Restore Previous Env, if existing
         Restore-Env
 
@@ -41,11 +40,29 @@ function Set-PoshEnv {
             Apply-Env
         }
 
-        $script:lastDir = $pwd
+        $script:lastApplied = $($script:allowed | ConvertTo-Json | Get-Hash)
         if ($script:ForceReload) { Remove-Variable -Name "ForceReload" -Scope script }
     }
 
     Log-Trace "END - Set-PoshEnv"
+}
+
+function Needs-Reload() {
+    Log-Trace "BEGIN - Needs-Reload()"
+    $Reload = $False
+    if ($script:ForceReload) {
+        Log-Debug "Reload forced."
+        $Reload = $True
+    }
+    $currentHash = $script:allowed | ConvertTo-Json | Get-Hash
+    Log-Trace "CurrentHash: $currentHash"
+    Log-Trace "LastHash   : $script:lastApplied"
+    if ($script:lastApplied -ne $currentHash) {
+        Log-Debug "Allowed files changed. Reloading."
+        $Reload = $True
+    }
+    Log-Trace "END - Needs-Reload()"
+    return $Reload
 }
 
 function Backup-Env {
@@ -85,7 +102,7 @@ function Restore-Env {
 function Apply-Env {
     Log-Trace "BEGIN - Apply-Env"
     $script:allowed | % {
-        Log-Info "Loading $((Get-FileInfo $_).Name)."
+        Log-Info "Loading $($_ | Resolve-Path -Relative)."
         Apply-File $_
     }
     Log-Trace "END - Apply-Env"

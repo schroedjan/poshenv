@@ -68,7 +68,7 @@ function Allow-File {
         $FileEntry
     )
     $script:AllowedPaths[$FileEntry.FullName] = $FileEntry.LastWriteTime
-    Log-Info "Allowing file $($FileEntry.Name)."
+    Log-Info "Allowing file $($FileEntry.FullName | Resolve-Path -Relative)."
     Force-PoshEnvReload
 }
 
@@ -76,7 +76,7 @@ function Deny-File {
     param(
         $FileEntry
     )
-    $script:AllowedPaths.Remove($FileEntry.FullName)
+    $script:AllowedPaths.Remove($($FileEntry.FullName | Resolve-Path -Relative))
     Force-PoshEnvReload
 }
 
@@ -87,14 +87,14 @@ function Check-File {
         $File
     )
     $FileInfo = Get-ChildItem -Path $File | Select Name,FullName,LastWriteTime
-    Log-Trace "BEGIN - Check-File"
+    Log-Trace "BEGIN - Check-File($File)"
     if ($script:AllowedPaths.Keys -contains $File) {
-        Log-Debug "$(Split-Path -Path $File -Leaf) contained in AllowedPaths"
+        Log-Debug "$($File | Resolve-Path -Relative) contained in AllowedPaths"
         if ($script:AllowedPaths[$File] -eq $($FileInfo.LastWriteTime)) {
-            Log-Debug "File '$(Split-Path -Path $File -Leaf)' has valid timestamp."
+            Log-Debug "File '$($File| Resolve-Path -Relative)' has valid timestamp."
             return $True
         } else {
-            Log-Warn "File '$(Split-Path -Path $File -Leaf)' has changed. Run 'poshenv allow' again for security reasons."
+            Log-Warn "File '$($File | Resolve-Path -Relative)' has changed. Run 'poshenv allow' again for security reasons."
         }
     }
     return $False
@@ -117,31 +117,29 @@ function List-Files {
         [Alias("d")]
         $Dir=$pwd
     )
-    Log-Trace "BEGIN - List-Files"
-    $EnvFiles = @()
-    $(Get-PoshEnvConfig "posh_env_files") | % {
-        switch(Get-PoshEnvConfig "search_mode") {
-            "current_folder" {
-                search_current_folder
-                break
-            }
-            "parent_folder" {
-                break
-            }
-            "parent_folder_merge" {
-                break
-            }
-            default {
-                Log-Warn "Search Mode not recognized! Falling back to only searching current folder."
-                search_current_folder
-                break
-            }
+    Log-Trace "BEGIN - List-Files($Dir)"
+    switch(Get-PoshEnvConfig "search_mode") {
+        "current_folder" {
+            $EnvFiles = search_current_folder $Dir
+            break
         }
-
-
+        "search_recursive" {
+            $EnvFiles = search_recursive $Dir
+            break
+        }
+        "merge_recursive" {
+            $EnvFiles = merge_recursive $Dir
+            break
+        }
+        default {
+            Log-Warn "Search Mode not recognized! Falling back to search mode 'merge_recursive'."
+            $EnvFiles = merge_recursive $Dir
+            break
+        }
     }
-    Log-Debug "Found following Files: $EnvFiles"
-    return $EnvFiles
+    $EnvFiles = $($EnvFiles | Sort-Object)
+    Log-Debug "Found following Files: $($EnvFiles)"
+    return $($EnvFiles)
 }
 
 function Get-FileInfo {
@@ -164,17 +162,61 @@ function Select-File {
     Log-Trace "BEGIN - Select-File"
     $choices = @()
     for ($i = 0; $i -lt $options.Length; $i++) {
-        $choices += New-Object System.Management.Automation.Host.ChoiceDescription("&$i - $(Split-Path -Path $options[$i] -Leaf)")
+        $choices += New-Object System.Management.Automation.Host.ChoiceDescription("&$i - $($options[$i] | Resolve-Path -Relative)")
     }
     return $host.ui.PromptForChoice($Message, $Caption, $choices, $DefaultChoice)
 }
 
 function search_current_folder() {
-    try {
-        if (Test-Path (Join-Path $Dir $_)) {
-            $EnvFiles += (Join-Path $Dir $_)
+    [CmdletBinding()]
+    param(
+        $Dir
+    )
+    Log-Trace "BEGIN - search_current_folder($Dir)"
+    $EnvFiles = @()
+    $(Get-PoshEnvConfig "posh_env_files") | % {
+        try {
+            if (Test-Path (Join-Path $Dir $_)) {
+                $EnvFiles += (Join-Path $Dir $_)
+            }
+        } catch {
+            Log-Debug "File '$_' not found. Continuing."
         }
-    } catch {
-        Log-Debug "File '$_' not found. Continuing."
     }
+    Log-Trace "END - search_current_folder"
+    return $EnvFiles
+}
+
+function search_recursive() {
+    [CmdletBinding()]
+    param(
+        $Dir
+    )
+    Log-Trace "BEGIN - search_recursive($Dir)"
+    $EnvFiles = @()
+    $Path = $Dir
+    while (($EnvFiles.Length -lt 1) -and ( $Path -ne "")) {
+        Log-Trace "search_recursive>> Path: $Path, EnvFiles: $EnvFiles"
+        $EnvFiles += search_current_folder $Path
+        $Path = $Path | Split-Path -parent
+    }
+    Log-Trace "END - search_recursive"
+    return $EnvFiles
+}
+
+function merge_recursive() {
+    [CmdletBinding()]
+    param(
+        $Dir
+    )
+    Log-Trace "BEGIN - merge_recursive($Dir)"
+    $EnvFiles = @()
+    $Path = $Dir
+    while ($Path -ne "") {
+        Log-Trace "search_recursive>> Path: $Path, EnvFiles: $EnvFiles"
+        $EnvFiles += search_current_folder $Path
+        $Path = $Path | Split-Path -parent
+    }
+    Log-Trace "END - search_recursive"
+    return $EnvFiles
 }
