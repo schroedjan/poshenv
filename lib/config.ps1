@@ -25,8 +25,9 @@ function Initialize-PoshEnvConfig {
     } else {
         Read-PoshEnvConfig
     }
+    Log-Debug "ConfigFile"
     # Init default values
-    Init-ConfigVar "log_level" "debug"
+    Init-ConfigVar "log_level" "trace"
     Init-ConfigVar "posh_env_files" @(".env", ".envrc", ".poshenv")
     Init-ConfigVar "allowed_path_file" "allowed_paths.json"
     Init-ConfigVar "show_candidates" $True
