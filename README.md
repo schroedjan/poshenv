@@ -11,7 +11,7 @@ Because it expands your standard powershell prompt, be sure to make it the last 
 ...
 <your profile content>
 ...
-Import-Module -Name "C:\Path\To\poshenv"
+Import-Module -Name "C:\Path\To\PoshEnv"
 ```
 
 ## Argument Completion
@@ -19,7 +19,7 @@ Import-Module -Name "C:\Path\To\poshenv"
 PoshEnv comes with custom argument completion. To activate it, just register the ArgumentCompleter after importing the module.
 
 ```powershell
-Import-Module -Name "C:\Path\To\poshenv"
+Import-Module -Name "C:\Path\To\PoshEnv"
 Register-PoshEnvCompletion
 ```
 

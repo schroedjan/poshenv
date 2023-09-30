@@ -5,12 +5,16 @@ Import-Module -Name ($PSScriptRoot + "\preprocessor.ps1")
 Import-Module -Name ($PSScriptRoot + "\util.ps1")
 
 function Set-PoshEnv {
+    Param (
+        [Alias("d")]
+        $Dir=$pwd
+    )
     Log-Trace "BEGIN - Set-PoshEnv"
 
     # Find candidates in current Folder
     $script:candidates = New-Object System.Collections.ArrayList
     $script:allowed = New-Object System.Collections.ArrayList
-    List-Files | % {
+    List-Files -d $Dir | % {
         if ((Check-File $_)) {
             $script:allowed.Add($_)
         } else {

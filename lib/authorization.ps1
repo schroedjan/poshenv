@@ -1,3 +1,4 @@
+# TODO: Replace Join-Path with [IO.Path]::Combine(...)
 Import-Module -Name ($PSScriptRoot + "\log.ps1")
 Import-Module -Name ($PSScriptRoot + "\config.ps1")
 
@@ -13,7 +14,7 @@ function Register-PoshEnv {
     if ($files.Count -eq 0) {
         Log-Debug "No candidates in current folder."
     } elseif ($($files.Count) -gt 1) {
-        Allow-File (Get-FileInfo $files[$(Select-File $files "Wnich file to allow?")])
+        Allow-File (Get-FileInfo $files[$(Select-File $files "Which file to allow?")])
         Save-AllowedPaths
     } else {
         Allow-File (Get-FileInfo $files)
@@ -176,8 +177,8 @@ function search_current_folder() {
     $EnvFiles = @()
     $(Get-PoshEnvConfig "posh_env_files") | % {
         try {
-            if (Test-Path (Join-Path $Dir $_)) {
-                $EnvFiles += (Join-Path $Dir $_)
+            if (Test-Path ([System.IO.Path]::Combine($Dir ,$_))) {
+                $EnvFiles += ([System.IO.Path]::Combine($Dir, $_))
             }
         } catch {
             Log-Debug "File '$_' not found. Continuing."
