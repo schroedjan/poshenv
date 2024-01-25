@@ -47,6 +47,11 @@ function PreProcess-Line() {
     )
     Log-Trace "BEGIN - PreProcess-Line"
     Log-Debug "Working on Line: $Line"
+    # Handle inline comments
+    if ($Line -match "#") {
+        Log-Trace "Found inline comment, removing"
+        $Line = $Line -replace "#.*", ""
+    }
     $command,$arguments = $Line -split ' ',2
     switch ($command) {
         "PATH_ADD" {
