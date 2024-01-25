@@ -50,7 +50,7 @@ function PreProcess-Line() {
     # Handle inline comments
     if ($Line -match "#") {
         Log-Trace "Found inline comment, removing"
-        $Line = $Line -replace "#.*", ""
+        $Line = $($Line -replace "#.*", "").Trim()
     }
     $command,$arguments = $Line -split ' ',2
     switch ($command) {
